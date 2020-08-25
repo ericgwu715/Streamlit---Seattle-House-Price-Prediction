@@ -21,9 +21,14 @@ from sklearn.metrics import accuracy_score
 
 st.title('Waka Waka Seattle Home Prices')
 
+from PIL import Image
+img = Image.open("seattle.jpg")
+st.image(img)
+
 st.write("""
 # Home Prices Predicted Using Machine Learning
 """)
+
 
 #read and display csv
 @st.cache 
@@ -56,10 +61,9 @@ def linearRegression(X_train, X_test, y_train, y_test):
     model = LinearRegression()
     model.fit(X_train,y_train)
     y_predict = model.predict(X_test)
-    score = r2_score(y_test, y_predict)*100
+    score = model.score(X_test, y_test)*100
 
     return score ,y_predict
-
 
 
 #User input for the model
@@ -101,6 +105,7 @@ def main():
         txt = "Accuracy of Random Forest Model is: " + str(round(score,2)) + "%" 
         if(st.checkbox("Show Model Accuracy")):
             st.success(txt)
+        
 
         try:
             if(st.checkbox("Start a Search")):
@@ -140,8 +145,8 @@ def main():
             if(st.checkbox("Start a Search")):
                 user_input_prediction = user_input()
                 pred = model.predict(user_input_prediction)
-                if(st.button("Submit")):
-                    st.write(pred)
+                st.button("Submit")
+                    
                     # txt = 'The Predicted Home Price is: $' + str(int(pred))
                         # st.success(txt)
 
@@ -157,11 +162,6 @@ def main():
             st.write(text[i])
             time.sleep(0.3)
             i += 1
-    
-
-        
-
-
 
 
 if __name__ == "__main__":
