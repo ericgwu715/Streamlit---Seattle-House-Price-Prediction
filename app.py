@@ -8,7 +8,7 @@ import mpl_toolkits
 from datetime import datetime
 import os, time, sys
 from pandas import DataFrame
-
+import plotly.express as px
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LinearRegression
@@ -16,6 +16,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.metrics import accuracy_score
 from sklearn import tree
+import graphviz
+
 
 st.title('Waka Waka Seattle Home Prices')
 st.write("""
@@ -129,42 +131,67 @@ def user_input_LR():
 
     return(user_input_prediction)
 
-
 def main():
     data = fetch_data()
     X_train, X_test, y_train, y_test = preprocessing(data)
 
+    #Show data
     if st.checkbox("Show the Data We Used"):
         st.subheader("Home Sales From 2014 to 2015")
-        st.write(data.head(200))
+        st.dataframe(data)
         if st.checkbox("Quick View of Features Histogram"):
             data.hist(bins=50, figsize=(15,15))
-            # fig = ff.create_distplot(data, bins=50)
             st.pyplot()
     st.write('---')
 
+    #Side bar 
+    if(st.sidebar.button("Back to Homepage")):
+        import webbrowser 
+        webbrowser.open('https://hungnw.github.io/seattle-house-prediction.github.io/')
     st.sidebar.header("Menu")
     st.sidebar.selectbox("Choose a City", ["Seattle"])
     ml_model = st.sidebar.selectbox("Choose a Model to Predict Home Prices", ["Random Forest Regressor","Mutilple Linear Regression","Coming Soon"])
-    viz = st.sidebar.selectbox("Visualization",['None','Feature Importance'])
+    viz = st.sidebar.selectbox("Visualization",['None','Feature Importance -RF Only','Tree- RF Only'])
 
+    #Add line space for Home buttom 
+    # if(st.sidebar.button("Home")):
+    #     import webbrowser 
+    #     webbrowser.open('https://hungnw.github.io/seattle-house-prediction.github.io/')
 
+    #RF Model 
     if(ml_model == "Random Forest Regressor"):
-        if(viz == 'Feature Importance'):
+        st.subheader("Random Forest Model")
+        score, regressor= randomForest(X_train, X_test, y_train, y_test)
+        txt = "Accuracy of Random Forest Model is: " + str(round(score,2)) + "%" 
+        st.success(txt)
+        st.write("---")
+        
+        if(viz == 'Feature Importance -RF Only'):
             feature_names = X
             score, regressor= randomForest(X_train, X_test, y_train, y_test)
             importance = sorted(zip((regressor.feature_importances_), feature_names), reverse=True)
             importance_df = DataFrame(importance, columns=['Feature_importances','Feature_names'])
             importance_df.set_index('Feature_names',inplace=True)
+            importance_df.sort_values(by = 'Feature_importances', ascending=True, inplace=True)
             st.markdown("Randon Forest feature importance")
-            st.bar_chart(importance_df)
-            st.write("---")
-        # st.pyplot()
-        st.subheader("Random Forest Model")
-        score, regressor= randomForest(X_train, X_test, y_train, y_test)
-        txt = "Accuracy of Random Forest Model is: " + str(round(score,2)) + "%" 
-        if(st.checkbox("Show Model Accuracy")):
-            st.success(txt)
+            fig = px.bar(importance_df, x='Feature_importances')
+            st.plotly_chart(fig)
+            st.write('---')
+
+        elif(viz == 'Tree- RF Only'): 
+            # from sklearn.tree import export_graphviz
+            # # Export as dot file
+            # export_graphviz(regressor.estimators_[3], 
+            #     max_depth=3,
+            #     out_file='tree.dot', 
+            #     feature_names = list(X.columns),
+            #     class_names = data.price,
+            #     rounded = True, proportion = False, 
+            #     precision = 2, filled = True)
+            st.markdown("Qucik view of decision tree no.3")
+            tree = open('tree.txt')
+            st.graphviz_chart(tree.read(),use_container_width=True)
+            st.write('---')
         
 
         try:
@@ -192,13 +219,14 @@ def main():
                     st.success("Waka Waka agrees with you. Have a nice day!")
         except:
             pass
-
+    
+    #LR Model 
     if(ml_model == "Mutilple Linear Regression"):
         st.subheader('Linear Regression Model')
         score, model= linearRegression(X_train, X_test, y_train, y_test)
         txt = "Accuracy of Linear Regression Model is: " + str(round(score,2)) + "%. Proceed with caution" 
-        if(st.checkbox("Show Model Accuracy")):
-            st.warning(txt)
+        st.warning(txt)
+        st.write('---')
         
 
         try:
@@ -226,7 +254,7 @@ def main():
             st.write('error')
 
 
-
+    #Coming Soon 
     elif(ml_model == "Coming Soon"):
         text = "Coming  Soon..."
         i=0
