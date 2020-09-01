@@ -1,4 +1,5 @@
 import pandas as pd 
+# import plotly.express as px
 import streamlit as st 
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -8,7 +9,6 @@ import mpl_toolkits
 from datetime import datetime
 import os, time, sys
 from pandas import DataFrame
-import plotly.express as px
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression
@@ -173,9 +173,14 @@ def main():
             importance_df = DataFrame(importance, columns=['Feature_importances','Feature_names'])
             importance_df.set_index('Feature_names',inplace=True)
             importance_df.sort_values(by = 'Feature_importances', ascending=True, inplace=True)
-            st.markdown("Randon Forest feature importance")
-            fig = px.bar(importance_df, x='Feature_importances')
-            st.plotly_chart(fig)
+            # st.markdown("Randon Forest feature importance")
+            # fig = px.bar(importance_df, x='Feature_importances')
+            # st.plotly_chart(fig)
+            # st.bar_chart(importance_df)
+            importance_df.plot(kind='barh')
+            plt.title('Random Forest feature importance')
+            plt.legend(loc='lower right')
+            st.pyplot()
             st.write('---')
 
         elif(viz == 'Tree- RF Only'): 
