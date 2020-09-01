@@ -9,6 +9,7 @@ from datetime import datetime
 import os, time, sys
 from pandas import DataFrame
 import plotly.express as px
+
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LinearRegression
@@ -16,7 +17,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.metrics import accuracy_score
 from sklearn import tree
-import graphviz
 
 
 st.title('Waka Waka Seattle Home Prices')
